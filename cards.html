@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Randow Cards</title>
+    <style>
+        #container {
+            width: 1100px;
+            margin: auto;
+            padding-top: 50px;
+        }
+
+        .card {
+            width: 250px;
+            margin: 0px 12px;
+            float: left;
+            cursor: pointer;
+        }
+
+        .card img {
+            width: 100%;
+        }
+
+        button {
+            width: 1072px;
+            margin: 30px 12px;
+            border: 1px solid green;
+            outline: none;
+            background-color: limegreen;
+            color: #fff;
+            font-size: 72px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: green;
+        }
+
+        #questions ol {
+            font-size: 36px;
+        }
+
+        #questions ol li.selected {
+            font-weight: bold;
+        }
+
+
+
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <div id="cards"></div>
+    <button id="shuffle">Shuffle</button>
+    <div id="questions">
+        <ol>
+            <li id="question1">Variabler, selektion og iteration</li>
+            <li id="question2">Funktioner og objekter</li>
+            <li id="question3">Datastrukturer, databehandling og filhåndtering</li>
+            <li id="question4">HTML, CSS, DOM og events</li>
+        </ol>
+    </div>
+</div>
+
+<script type="application/javascript">
+
+    let cards = [
+        {value: 1, imgSrc: 'images/AH.png'},
+        {value: 2, imgSrc: 'images/2H.png'},
+        {value: 3, imgSrc: 'images/3H.png'},
+        {value: 4, imgSrc: 'images/4H.png'},
+    ];
+
+    let subjectSelected = false;
+
+    // https://medium.com/@nitinpatel_20236/how-to-shuffle-correctly-shuffle-an-array-in-javascript-15ea3f84bfb
+    function shuffle(array) {
+        for(let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * i);
+            const temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+    }
+
+    function reset() {
+        subjectSelected = false;
+        for (let element of document.querySelectorAll('#questions .selected')) {
+            element.classList.remove("selected");
+        }
+        shuffle(cards);
+        document.querySelector('#cards').innerHTML = "";
+        for (let card of cards) {
+            let html = `
+                <div class="card" data-img-src="${card.imgSrc}" data-value="${card.value}">
+                    <img src="images/purple_back.png">
+                 </div>
+            `;
+            document.querySelector('#cards').insertAdjacentHTML('afterbegin', html);
+        }
+    }
+
+    document.querySelector('#shuffle').addEventListener('click', () => {
+        reset();
+    });
+
+    document.querySelector('#cards').addEventListener('click', (e) => {
+        let cardElement = e.target.closest('.card');
+        if (cardElement) {
+            cardElement.querySelector('img').src = cardElement.dataset.imgSrc;
+            if (!subjectSelected) {
+                document.querySelector('#question' + cardElement.dataset.value).classList.add("selected");
+                subjectSelected = true;
+            }
+        }
+    });
+
+    reset();
+
+</script>
+
+</body>
+</html>
