@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Corona Forelæsningsliste</title>
 </head>
 <body>
 
@@ -15,6 +15,7 @@
 <div id="corona-lecture-list">
     Filter: <input type="text" id="corona-lecture-list-search">
 </div>
+
 
 <script>
 
@@ -125,46 +126,62 @@
         {name: "Peter Sebastian Hansen", auId: "au667354"},
         {name: "Victor Bliksted Egeblad", auId: "au674242"},
         {name: "Maj Kjeldgaard Kjær Nielsen", auId: "au669668"}
-    ];
+    ].sort((a, b) => a.name.localeCompare(b.name));
 
-    const lectures = ['Uge 37', 'Uge 38', 'Uge 39', 'Uge 40', 'Uge 41', 'Uge 44', 'Uge 45', 'Uge 46'];
-    const maxStudent = 75;
+    const lectures = ["Uge 37", "Uge 38", "Uge 39", "Uge 40", "Uge 41", "Uge 44", "Uge 45", "Uge 46"];
+    const maxStudents = 75;
 
     students.sort((a, b) => a.name.localeCompare(b.name));
 
-    const rootElement = document.querySelector('#corona-lecture-list');
+    const rootElement = document.querySelector("#corona-lecture-list");
+
+    let tempMap = new Map();
 
     for (let i = 0; i < lectures.length; i++) {
-        let lectureParticipants = cyclicSlice(students, maxStudent, i + 1);
         rootElement.insertAdjacentHTML('beforeend', `<h2>${lectures[i]}</h2>`);
-        rootElement.insertAdjacentHTML('beforeend', `<h3>Forelæsningsal</h3>`);
-        rootElement.insertAdjacentHTML('beforeend', createTable(lectureParticipants.included.sort((a, b) => a.name.localeCompare(b.name))));
-        rootElement.insertAdjacentHTML('beforeend', `<h3>Online (Collaborate)</h3>`);
-        rootElement.insertAdjacentHTML('beforeend', createTable(lectureParticipants.excluded.sort((a, b) => a.name.localeCompare(b.name))));
-    }
+        let lectureParticipants = fairCyclicSlice(students, maxStudents, i + 1, lectures.length);
+        let included = new Set(lectureParticipants.included);
+        let all = [...lectureParticipants.included, ...lectureParticipants.excluded];
+        all.sort((a, b) => a.name.localeCompare(b.name));
 
-    function createTable(students) {
-        let html = `<table><colgroup><col style="width: 300px"><col style="width: 100px"></colgroup></colgroup><tbody>`;
+        let htmlTable = `<table><colgroup><col style="width: 300px"><col style="width: 100px"><col style="width: 200px"></colgroup></colgroup><tbody>`;
         for (let student of students) {
-            html += `<tr class="student-row"><td>${student.name}</td><td>${student.auId}</td></tr>`
+            htmlTable += `<tr class="student-row"><td>${student.name}</td><td>${student.auId}</td><td>${included.has(student) ? "Forelæsningssal" : "Online (Collaborate)"}</td></tr>`
         }
-        html += `</tbody></html>`;
-        return html;
+        htmlTable += `</tbody></html>`;
+
+        rootElement.insertAdjacentHTML("beforeend", htmlTable);
     }
 
-    function cyclicSlice(arr, count, sliceNumber) {
-        if (count > arr.length) {
+    function fairCyclicSlice(arr, maxCount, sliceNumber, totalSlices) {
+        if (maxCount > arr.length) {
             throw new Error("Count cannot be greater than the length of the array");
         }
-        let startIndex = ((sliceNumber - 1) * count);
+        let maxIncluded = 0;
+        for (let x = 1; x <= totalSlices; x++) {
+            let maxParticipantsTemp = x * arr.length;
+            if (maxParticipantsTemp > maxCount * totalSlices) {
+                break;
+            }
+            maxIncluded = x;
+        }
+
+        let sliceSize = Math.ceil((maxIncluded / totalSlices) * arr.length);
+
+        let remainder = (sliceSize * totalSlices) - (arr.length * maxIncluded); // make sure everybody is excluded the same amount
+        if (sliceNumber !== totalSlices) { // only take into account on last iteration
+            remainder = 0;
+        }
+
+        let startIndex = ((sliceNumber - 1) * sliceSize);
         if (startIndex > arr.length) {
             startIndex = startIndex % arr.length;
         }
         let included = [];
 
-        included.push(...arr.slice(startIndex, Math.min(startIndex + count, arr.length)));
-        if (count > included.length) {
-            included.push(...arr.slice(0, count - included.length));
+        included.push(...arr.slice(startIndex, Math.min(startIndex + sliceSize - remainder, arr.length)));
+        if (sliceSize - remainder > included.length) {
+            included.push(...arr.slice(0, sliceSize - included.length - remainder));
         }
 
         let includedSet = new Set(included);
@@ -176,17 +193,20 @@
         }
     }
 
-    document.querySelector('#corona-lecture-list-search').addEventListener('keyup', (e) => {
-        let searchString = e.target.value.trim();
+    const filterInput = document.querySelector("#corona-lecture-list-search");
+    filterInput.focus();
 
-        for (let row of document.querySelectorAll('.student-row')) {
-            if (searchString === "" || row.firstElementChild.textContent.startsWith(searchString)) {
-                row.classList.remove('hidden');
+    filterInput.addEventListener("keyup", (e) => {
+        let searchString = e.target.value.trim().toLowerCase();
+
+        for (let row of document.querySelectorAll(".student-row")) {
+            if (searchString === "" || row.firstElementChild.textContent.toLowerCase().startsWith(searchString)) {
+                row.classList.remove("hidden");
             } else {
-                row.classList.add('hidden');
+                row.classList.add("hidden");
             }
         }
-    })
+    });
 
 </script>
 
