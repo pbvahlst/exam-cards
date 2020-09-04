@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<style>
+    tr.hidden {
+        display: none;
+    }
+
+</style>
+<div id="corona-lecture-list">
+    Filter: <input type="text" id="corona-lecture-list-search">
+</div>
+
+<script>
+
+    const students = [
+        {name: "Holger Randel Dige Pedersen", auId: "au508760"},
+        {name: "Anne Møbjerg Christensen", auId: "au615868"},
+        {name: "August Kirk Rasmussen", auId: "au618339"},
+        {name: "Sofie Boeriis Rasmussen", auId: "au617375"},
+        {name: "Sigurd Bernt Ellefsen", auId: "au601910"},
+        {name: "Astrid Lange", auId: "au643997"},
+        {name: "Julie Trang", auId: "au648479"},
+        {name: "Joshua Hansen", auId: "au634054"},
+        {name: "Uffe Holtum Hansen", auId: "au649795"},
+        {name: "Julie Marie Svendsen", auId: "au650509"},
+        {name: "Emma Kjær Madsen", auId: "au644631"},
+        {name: "Jonathan Vendelboe", auId: "au633694"},
+        {name: "Christian Graversgaard", auId: "au649545"},
+        {name: "Victoria Trab Worm", auId: "au648081"},
+        {name: "Stephanie Pedersen", auId: "au618321"},
+        {name: "Nikolaj Klindt Schwaner", auId: "au639360"},
+        {name: "Sofie Aslaug Hansen", auId: "au636757"},
+        {name: "Nicolaj Klemp Johnsen", auId: "au649600"},
+        {name: "Mathilde Buch Stokkebæk", auId: "au635324"},
+        {name: "Jonas Gudsø Jantzen", auId: "au648849"},
+        {name: "Camilla Palner Jensen", auId: "au683107"},
+        {name: "Ingeborg Aggerholm", auId: "au676215"},
+        {name: "Mariam Khaled", auId: "au633214"},
+        {name: "Mads Søndergaard Kolind", auId: "au680171"},
+        {name: "Pernille Louise Klavsen", auId: "au662266"},
+        {name: "Tobias Utoft Jensen", auId: "au664720"},
+        {name: "Esben Korsgaard Nymand", auId: "au681495"},
+        {name: "Anthon Hem Jensen", auId: "au668387"},
+        {name: "Laura Rebecca Fransgaard", auId: "au666704"},
+        {name: "Horaman Muradi", auId: "au662328"},
+        {name: "Nicoline Schwartz", auId: "au662275"},
+        {name: "Mathilde Løhde Würtz Drejer", auId: "au636451"},
+        {name: "Anna Rønnebro Siegfredsen", auId: "au668654"},
+        {name: "Mathias Nygaard Krogh", auId: "au669125"},
+        {name: "Caroline Dalsager", auId: "au681995"},
+        {name: "Gustav Lyndrup Petersen", auId: "au671588"},
+        {name: "Tobias Kaastrup Nielsen", auId: "au676720"},
+        {name: "Julie Houborg Nielsen", auId: "au668678"},
+        {name: "Nanna Nyborg Sørensen", auId: "au666015"},
+        {name: "Caroline Bock", auId: "au681080"},
+        {name: "Mads Eisner", auId: "au681627"},
+        {name: "Kien Trung Doan Nguyen", auId: "au635634"},
+        {name: "Josefine Y Mullings Kjær", auId: "au681656"},
+        {name: "Laura Ulberg Aggerholm", auId: "au676752"},
+        {name: "Phillip Fonnesbech Liljendal", auId: "au637856"},
+        {name: "Frederik Mullesgaard Pedersen", auId: "au660312"},
+        {name: "Frida Träger", auId: "au551944"},
+        {name: "August Severin Andersen", auId: "au660281"},
+        {name: "Nikolaj Engell-Hansen", auId: "au602051"},
+        {name: "Mette Elida Dejnbjerg Jensen", auId: "au667986"},
+        {name: "Martha Behrens Andersen", auId: "au674744"},
+        {name: "Nanna Lind Bjerre", auId: "au680179"},
+        {name: "Torben Johann Günther Kraschon", auId: "au672907"},
+        {name: "Jens Møller Thøgersen", auId: "au668493"},
+        {name: "Andrea Kirsten Kind Thrane", auId: "au662002"},
+        {name: "Tess Mikka Rasmussen", auId: "au676814"},
+        {name: "Irma Sehapovic", auId: "au679537"},
+        {name: "Isak Hollmann Leth", auId: "au667216"},
+        {name: "Theresa Rømer Andersen", auId: "au676517"},
+        {name: "Tommy Hao Nam Huynh", auId: "au673229"},
+        {name: "Luna Broberg Foroughipour", auId: "au662972"},
+        {name: "Matilde Hjort Nygaard Sørensen", auId: "au634228"},
+        {name: "Charlotte Uldum Thisgaard", auId: "au681386"},
+        {name: "Jacob Nyborg Nielsen", auId: "au638402"},
+        {name: "Frej Emil Slaikjær Gram", auId: "au663864"},
+        {name: "Stine Guldbrandt", auId: "au642268"},
+        {name: "Victor de Linde", auId: "au676183"},
+        {name: "Katarina Marie Hermansen", auId: "au632772"},
+        {name: "Emil Aleksej Belinson", auId: "au669809"},
+        {name: "Simon Østergård Hansen", auId: "au662102"},
+        {name: "Mikkel Rolighed Nør", auId: "au665811"},
+        {name: "Rikke From Winther", auId: "au669914"},
+        {name: "Rune Bak Hansen", auId: "au642632"},
+        {name: "Ida Marie Sorwad Jørgensen", auId: "au667444"},
+        {name: "Mikkel Mondrup Bergstrøm", auId: "au664283"},
+        {name: "Clara Laue Petersen", auId: "au667021"},
+        {name: "Marie Kjær Storm Christiansen", auId: "au676726"},
+        {name: "Malthe Rosendahl Stie", auId: "au667148"},
+        {name: "Emma Sofie Bekke Meiling-Nielsen", auId: "au670426"},
+        {name: "Kirstine Mondrup Andersen", auId: "au670630"},
+        {name: "Annika Ida Nedergaard Enevoldsen", auId: "au670687"},
+        {name: "Alexander Hinge", auId: "au664711"},
+        {name: "Anelia Aleksandrova Boyadzhieva", auId: "au671033"},
+        {name: "Sofus Ellegaard", auId: "au683651"},
+        {name: "Andreas Haahr Hansen", auId: "au670235"},
+        {name: "Maria Dehn Rasmussen", auId: "au670566"},
+        {name: "Anna Katrine Grønbæk", auId: "au667313"},
+        {name: "Philip Kortnum Volsmann Mouridsen", auId: "au666179"},
+        {name: "Thea Marie Bech Skot-Hansen", auId: "au675740"},
+        {name: "Ida Bech Nielsen", auId: "au662037"},
+        {name: "Alexander Adam Hestehauge", auId: "au664384"},
+        {name: "Anders Hebo Lange", auId: "au665530"},
+        {name: "Line Krogshave Jørgensen", auId: "au666642"},
+        {name: "Philip Nygaard Åsebø", auId: "au683167"},
+        {name: "Oline Bro Lindblad", auId: "au602147"},
+        {name: "Mathilde Berg Hansen", auId: "au677808"},
+        {name: "Frederik Lerche Pandal", auId: "au677730"},
+        {name: "Daniel Kasper", auId: "au681244"},
+        {name: "Max Odentz Lindbjerg", auId: "au684481"},
+        {name: "Nicolaj Vandkrog Thomsen", auId: "au668884"},
+        {name: "Jeppe Skov Sørensen", auId: "au639034"},
+        {name: "Anette Lund Havbo", auId: "au672453"},
+        {name: "Emma Due Kronborg", auId: "au588053"},
+        {name: "Peter Sebastian Hansen", auId: "au667354"},
+        {name: "Victor Bliksted Egeblad", auId: "au674242"},
+        {name: "Maj Kjeldgaard Kjær Nielsen", auId: "au669668"}
+    ];
+
+    const lectures = ['Uge 37', 'Uge 38', 'Uge 39', 'Uge 40', 'Uge 41', 'Uge 44', 'Uge 45', 'Uge 46'];
+    const maxStudent = 75;
+
+    students.sort((a, b) => a.name.localeCompare(b.name));
+
+    const rootElement = document.querySelector('#corona-lecture-list');
+
+    for (let i = 0; i < lectures.length; i++) {
+        let lectureParticipants = cyclicSlice(students, maxStudent, i + 1);
+        rootElement.insertAdjacentHTML('beforeend', `<h2>${lectures[i]}</h2>`);
+        rootElement.insertAdjacentHTML('beforeend', `<h3>Forelæsningsal</h3>`);
+        rootElement.insertAdjacentHTML('beforeend', createTable(lectureParticipants.included.sort((a, b) => a.name.localeCompare(b.name))));
+        rootElement.insertAdjacentHTML('beforeend', `<h3>Online (Collaborate)</h3>`);
+        rootElement.insertAdjacentHTML('beforeend', createTable(lectureParticipants.excluded.sort((a, b) => a.name.localeCompare(b.name))));
+    }
+
+    function createTable(students) {
+        let html = `<table><colgroup><col style="width: 300px"><col style="width: 100px"></colgroup></colgroup><tbody>`;
+        for (let student of students) {
+            html += `<tr class="student-row"><td>${student.name}</td><td>${student.auId}</td></tr>`
+        }
+        html += `</tbody></html>`;
+        return html;
+    }
+
+    function cyclicSlice(arr, count, sliceNumber) {
+        if (count > arr.length) {
+            throw new Error("Count cannot be greater than the length of the array");
+        }
+        let startIndex = ((sliceNumber - 1) * count);
+        if (startIndex > arr.length) {
+            startIndex = startIndex % arr.length;
+        }
+        let included = [];
+
+        included.push(...arr.slice(startIndex, Math.min(startIndex + count, arr.length)));
+        if (count > included.length) {
+            included.push(...arr.slice(0, count - included.length));
+        }
+
+        let includedSet = new Set(included);
+        let excluded = arr.filter((entry) => !includedSet.has(entry));
+
+        return {
+            included: included,
+            excluded: excluded
+        }
+    }
+
+    document.querySelector('#corona-lecture-list-search').addEventListener('keyup', (e) => {
+        let searchString = e.target.value.trim();
+
+        for (let row of document.querySelectorAll('.student-row')) {
+            if (searchString === "" || row.firstElementChild.textContent.startsWith(searchString)) {
+                row.classList.remove('hidden');
+            } else {
+                row.classList.add('hidden');
+            }
+        }
+    })
+
+</script>
+
+</body>
+</html>
