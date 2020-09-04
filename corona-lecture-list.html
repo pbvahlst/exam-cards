@@ -131,52 +131,55 @@
     const lectures = ["Uge 37", "Uge 38", "Uge 39", "Uge 40", "Uge 41", "Uge 44", "Uge 45", "Uge 46"];
     const maxStudents = 75;
 
-    students.sort((a, b) => a.name.localeCompare(b.name));
+    gui();
 
-    const rootElement = document.querySelector("#corona-lecture-list");
+    function gui() {
+        const rootElement = document.querySelector("#corona-lecture-list");
 
-    let tempMap = new Map();
+        for (let i = 0; i < lectures.length; i++) {
+            rootElement.insertAdjacentHTML('beforeend', `<h2>${lectures[i]}</h2>`);
+            let lectureParticipants = fairCyclicSlice(students, maxStudents, i + 1, lectures.length);
+            let included = new Set(lectureParticipants.included);
+            let all = [...lectureParticipants.included, ...lectureParticipants.excluded];
+            all.sort((a, b) => a.name.localeCompare(b.name));
 
-    for (let i = 0; i < lectures.length; i++) {
-        rootElement.insertAdjacentHTML('beforeend', `<h2>${lectures[i]}</h2>`);
-        let lectureParticipants = fairCyclicSlice(students, maxStudents, i + 1, lectures.length);
-        let included = new Set(lectureParticipants.included);
-        let all = [...lectureParticipants.included, ...lectureParticipants.excluded];
-        all.sort((a, b) => a.name.localeCompare(b.name));
+            let htmlTable = `<table><colgroup><col style="width: 300px"><col style="width: 100px"><col style="width: 200px"></colgroup></colgroup><tbody>`;
+            for (let student of students) {
+                htmlTable += `<tr class="student-row"><td>${student.name}</td><td>${student.auId}</td><td>${included.has(student) ? "Forelæsningssal" : "Online (Collaborate)"}</td></tr>`
+            }
+            htmlTable += `</tbody></html>`;
 
-        let htmlTable = `<table><colgroup><col style="width: 300px"><col style="width: 100px"><col style="width: 200px"></colgroup></colgroup><tbody>`;
-        for (let student of students) {
-            htmlTable += `<tr class="student-row"><td>${student.name}</td><td>${student.auId}</td><td>${included.has(student) ? "Forelæsningssal" : "Online (Collaborate)"}</td></tr>`
+            rootElement.insertAdjacentHTML("beforeend", htmlTable);
         }
-        htmlTable += `</tbody></html>`;
-
-        rootElement.insertAdjacentHTML("beforeend", htmlTable);
     }
 
     function fairCyclicSlice(arr, maxCount, sliceNumber, totalSlices) {
         if (maxCount > arr.length) {
-            throw new Error("Count cannot be greater than the length of the array");
+            maxCount = arr.length;
         }
-        let maxIncluded = 0;
-        for (let x = 1; x <= totalSlices; x++) {
-            let maxParticipantsTemp = x * arr.length;
-            if (maxParticipantsTemp > maxCount * totalSlices) {
-                break;
+
+        let sliceSize = maxCount;
+        let remainder = 0;
+
+        if (totalSlices) {
+            // fairness, make sure all are included the same amount
+            let maxIncluded = Math.floor((totalSlices * maxCount) / arr.length);
+            if (maxIncluded === 0) {
+                throw new Error("Cannot include all at least once");
             }
-            maxIncluded = x;
-        }
 
-        let sliceSize = Math.ceil((maxIncluded / totalSlices) * arr.length);
+            sliceSize = Math.ceil((maxIncluded / totalSlices) * arr.length);
 
-        let remainder = (sliceSize * totalSlices) - (arr.length * maxIncluded); // make sure everybody is excluded the same amount
-        if (sliceNumber !== totalSlices) { // only take into account on last iteration
-            remainder = 0;
+            if (sliceNumber === totalSlices) { // only take into account on last iteration
+                remainder = (sliceSize * totalSlices) - (arr.length * maxIncluded); // make sure everybody is excluded the same amount
+            }
         }
 
         let startIndex = ((sliceNumber - 1) * sliceSize);
         if (startIndex > arr.length) {
             startIndex = startIndex % arr.length;
         }
+
         let included = [];
 
         included.push(...arr.slice(startIndex, Math.min(startIndex + sliceSize - remainder, arr.length)));
